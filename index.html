@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Visit tracker</title>
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+<main id="login" class="wrap login hidden">
+  <h1>Visit tracker</h1>
+  <p class="sub">Sign in to view the numbers. Only the site owner has an account.</p>
+  <form id="loginForm" class="card" style="display:flex;flex-direction:column;gap:12px">
+    <label>Email <input id="email" type="email" autocomplete="username" required></label>
+    <label>Password <input id="password" type="password" autocomplete="current-password" required></label>
+    <button class="btn primary" type="submit">Sign in</button>
+    <div id="loginErr" class="err" role="alert"></div>
+  </form>
+</main>
+
+<main id="app" class="wrap hidden">
+  <div class="bar">
+    <div><h1>Visit tracker</h1><p class="sub" id="status">Loading...</p></div>
+    <div class="ctl">
+      <label for="range">Range</label>
+      <select id="range"><option value="1">Last 24 hours</option><option value="7" selected>Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option></select>
+      <label for="site">Site</label>
+      <select id="site"><option value="">All sites</option></select>
+      <button class="btn" id="refresh" type="button">Refresh</button>
+      <button class="btn" id="csv" type="button">Export CSV</button>
+      <button class="btn" id="out" type="button">Sign out</button>
+    </div>
+  </div>
+  <div class="kpis" id="kpis"></div>
+  <div class="row">
+    <section class="card"><h2>Visits per day</h2><p class="sub">Distinct visits</p><div class="trend" id="trend"></div><div class="axis" id="axis"></div></section>
+    <section class="card"><h2>Most used</h2><p class="sub">Event counts (page views not included)</p><div class="bars" id="top"></div></section>
+  </div>
+  <div class="row">
+    <section class="card fun"><h2>Where people drop off</h2><p class="sub">Visits that started versus finished</p><div class="bars" id="funnel"></div></section>
+    <section class="card"><h2>Where visits come from</h2><p class="sub">Referring site</p><div class="bars" id="refs"></div><p class="sub" style="margin-top:16px">Device</p><div class="bars" id="devs"></div></section>
+  </div>
+  <section class="card">
+    <h2>Visit journeys</h2>
+    <p class="sub">Pick a visit to see what that person did, in order. A visit has a random ID only: no name, no IP address.</p>
+    <div class="row" style="margin-top:12px">
+      <div class="vis" id="visits" style="flex:1 1 320px"></div>
+      <div style="flex:1.4 1 360px;min-width:0"><div id="jhead" style="font-weight:700"></div><ol class="jr" id="journey"></ol></div>
+    </div>
+  </section>
+</main>
+<script src="js/lib.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>
