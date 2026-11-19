@@ -21,6 +21,15 @@ test("summarize counts visits, page views, events and ignores page views in top 
   assert.deepStrictEqual(s.referrers.map(function (r) { return r[0]; }).sort(), ["(direct)", "linkedin.com"]);
 });
 
+test("countries are counted per visit from the page view", function () {
+  const s = L.summarize([
+    ev("a1", "2026-11-19T10:00:00Z", "pageview", { country: "US" }),
+    ev("b2", "2026-11-19T11:00:00Z", "pageview", { country: "US" }),
+    ev("c3", "2026-11-19T12:00:00Z", "pageview")
+  ]);
+  assert.deepStrictEqual(s.countries, [["US", 2], ["(unknown)", 1]]);
+});
+
 test("funnel counts distinct visits that started and finished tickets and missions", function () {
   const s = L.summarize([
     ev("a1", "2026-11-19T10:00:00Z", "ticket/s1-started"),
@@ -59,6 +68,6 @@ test("csv escapes quotes and commas and neutralises spreadsheet formulas", funct
   assert.strictEqual(L.csvCell('a,"b"'), '"a,""b"""');
   assert.strictEqual(L.csvCell("=SUM(A1)"), "'=SUM(A1)");
   const csv = L.toCsv([ev("a1", "2026-11-19T10:00:00Z", "x", { referrer: "=evil" })]);
-  assert.ok(csv.split("\n")[0] === "at,site,visit_id,name,device,referrer");
+  assert.ok(csv.split("\n")[0] === "at,site,visit_id,name,device,referrer,country");
   assert.ok(csv.indexOf("'=evil") > 0);
 });

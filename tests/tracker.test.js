@@ -15,6 +15,7 @@ function boot(url, opts) {
     beforeParse: function (w) {
       w.fetch = function (u, o) { calls.push({ url: u, opts: o, body: JSON.parse(o.body) }); return Promise.resolve({}); };
       Object.defineProperty(w.navigator, "userAgent", { value: opts.ua || "Mozilla/5.0 (Macintosh) Chrome/150 Safari/537.36" });
+      w.Intl = { DateTimeFormat: function () { return { resolvedOptions: function () { return { timeZone: opts.tz || "UTC" }; } }; } };
       if (opts.webdriver) { Object.defineProperty(w.navigator, "webdriver", { value: true }); }
     }
   };
@@ -26,7 +27,7 @@ function boot(url, opts) {
 }
 
 test("sends a page view with site, visit id and device only", function () {
-  const t = boot("https://markplowwright.github.io/", { referrer: "https://www.linkedin.com/feed/" });
+  const t = boot("https://markplowwright.github.io/", { referrer: "https://www.linkedin.com/feed/", tz: "America/New_York" });
   assert.strictEqual(t.calls.length, 1);
   const b = t.calls[0].body;
   assert.strictEqual(b.name, "pageview");
@@ -34,8 +35,19 @@ test("sends a page view with site, visit id and device only", function () {
   assert.match(b.visit_id, /^[a-z0-9]{8,32}$/);
   assert.ok(["desktop", "phone", "tablet"].includes(b.device));
   assert.strictEqual(b.referrer, "linkedin.com");
-  assert.deepStrictEqual(Object.keys(b).sort(), ["device", "name", "referrer", "site", "visit_id"]);
+  assert.deepStrictEqual(Object.keys(b).sort(), ["country", "device", "name", "referrer", "site", "visit_id"]);
   assert.strictEqual(t.calls[0].opts.headers.Prefer, "return=minimal");
+});
+
+test("sends a country guessed from the time zone on the page view only", function () {
+  const t = boot("https://markplowwright.github.io/", { tz: "America/New_York" });
+  assert.strictEqual(t.calls[0].body.country, "US");
+  t.w.vtrack("x/y");
+  assert.ok(!("country" in t.calls[1].body));
+  const u = boot("https://markplowwright.github.io/", { tz: "Mars/Olympus_Mons" });
+  assert.ok(!("country" in u.calls[0].body));
+  const k = boot("https://markplowwright.github.io/", { tz: "Asia/Kolkata" });
+  assert.strictEqual(k.calls[0].body.country, "IN");
 });
 
 test("vtrack cleans the event name and keeps the same visit id", function () {
