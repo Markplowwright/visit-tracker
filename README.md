@@ -13,7 +13,7 @@ Each event stores only:
 - the event name (for example `screen/intune.home` or `ticket/s1-resolved`)
 - the time
 - the device type (phone, tablet or desktop)
-- on the page view only: the name of the site the visitor came from (for example `linkedin.com`)
+- on the page view only: the name of the site the visitor came from (for example `linkedin.com`), and a two-letter country code guessed from the browser's time zone (for example `America/New_York` becomes `US`). This is a rough guess and involves no IP lookup. Time zones that are not in the built-in list send no country.
 
 It does **not** collect names, email addresses, IP addresses, cookies, anything typed into a page, or the full address of a page or link. It does not track people across visits or across sites.
 
@@ -45,7 +45,7 @@ Event names are lower case letters, numbers and `/ . _ : -`, up to 120 character
 
 ## Dashboard
 
-Range picker (24 hours to 90 days), site filter, visits per day, most used events, where people drop off (started versus finished per ticket and mission), referrers and devices, per-visit journeys, and a CSV export.
+Range picker (24 hours to 90 days), site filter, visits per day, most used events, where people drop off (started versus finished per ticket and mission), referrers, devices and countries, per-visit journeys, and a CSV export.
 
 ## Set it up
 
@@ -66,4 +66,4 @@ Range picker (24 hours to 90 days), site filter, visits per day, most used event
 
 ## Not yet
 
-Country is not recorded. Bot filtering is basic (user-agent and automation flags). Old events are not deleted automatically yet, and there is no scheduled backup; use Export CSV for now.
+Country is only a time zone guess, so travelers and VPN users can look wrong. Bot filtering is basic (user-agent and automation flags). Old events are not deleted automatically yet, and there is no scheduled backup; use Export CSV for now.

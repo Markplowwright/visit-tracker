@@ -10,10 +10,10 @@
   function sizes(map) { var o = {}; Object.keys(map).forEach(function (k) { o[k] = Object.keys(map[k]).length; }); return o; }
 
   function summarize(events) {
-    var visits = {}, names = {}, daily = {}, refs = {}, devs = {}, started = {}, done = {}, pageviews = 0;
+    var visits = {}, names = {}, daily = {}, refs = {}, devs = {}, ctry = {}, started = {}, done = {}, pageviews = 0;
     events.forEach(function (e) {
       var v = visits[e.visit_id];
-      if (!v) { v = visits[e.visit_id] = { id: e.visit_id, site: e.site, device: e.device || "", referrer: null, first: e.at, last: e.at, events: [] }; }
+      if (!v) { v = visits[e.visit_id] = { id: e.visit_id, site: e.site, device: e.device || "", referrer: null, country: null, first: e.at, last: e.at, events: [] }; }
       v.events.push({ at: e.at, name: e.name });
       if (e.at < v.first) { v.first = e.at; }
       if (e.at > v.last) { v.last = e.at; }
@@ -21,6 +21,7 @@
         pageviews += 1;
         if (e.referrer && !v.referrer) { v.referrer = e.referrer; }
         if (e.device && !v.device) { v.device = e.device; }
+        if (e.country && !v.country) { v.country = e.country; }
       } else {
         names[e.name] = (names[e.name] || 0) + 1;
       }
@@ -36,6 +37,7 @@
       addTo(daily, dayKey(v.first), v.id);
       addTo(refs, v.referrer || "(direct)", v.id);
       addTo(devs, v.device || "(unknown)", v.id);
+      addTo(ctry, v.country || "(unknown)", v.id);
     });
     list.sort(function (a, b) { return a.first < b.first ? 1 : -1; });
     var s = sizes(started), d = sizes(done);
@@ -46,7 +48,7 @@
     return {
       visitCount: list.length, pageviews: pageviews,
       eventCount: events.length - pageviews,
-      top: count(names), daily: sizes(daily), referrers: count(sizes(refs)), devices: count(sizes(devs)),
+      top: count(names), daily: sizes(daily), referrers: count(sizes(refs)), devices: count(sizes(devs)), countries: count(sizes(ctry)),
       funnel: funnel, ticketsStarted: startedTotal, ticketsFinished: finishedTotal, visits: list
     };
   }
@@ -57,7 +59,7 @@
     return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   }
   function toCsv(events) {
-    var head = ["at", "site", "visit_id", "name", "device", "referrer"];
+    var head = ["at", "site", "visit_id", "name", "device", "referrer", "country"];
     return [head.join(",")].concat(events.map(function (e) { return head.map(function (h) { return csvCell(e[h]); }).join(","); })).join("\n") + "\n";
   }
   function lastDays(map, days, now) {

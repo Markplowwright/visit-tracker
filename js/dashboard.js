@@ -30,7 +30,7 @@
   /* ---------- data ---------- */
   function page(from, sinceIso, retried) {
     var s = getSess();
-    var url = BASE + "/rest/v1/events?select=visit_id,site,name,at,referrer,device&at=gte." + encodeURIComponent(sinceIso) + "&order=at.asc";
+    var url = BASE + "/rest/v1/events?select=visit_id,site,name,at,referrer,device,country&at=gte." + encodeURIComponent(sinceIso) + "&order=at.asc";
     return fetch(url, { headers: { apikey: KEY, Authorization: "Bearer " + (s ? s.access : ""), "Range-Unit": "items", Range: from + "-" + (from + PAGE - 1) } })
       .then(function (r) {
         if (r.status === 401 && !retried) { return refresh().then(function () { return page(from, sinceIso, true); }); }
@@ -98,13 +98,15 @@
     var rf = summary.referrers.slice(0, 6), dv = summary.devices;
     bars($("refs"), rf, rf.length ? rf[0][1] : 1);
     bars($("devs"), dv, dv.length ? dv[0][1] : 1);
+    var cy = summary.countries.slice(0, 8);
+    bars($("ctry"), cy, cy.length ? cy[0][1] : 1);
 
     var vl = $("visits"); vl.textContent = "";
     if (!summary.visits.length) { vl.appendChild(el("p", "empty", "No visits in this range.")); }
     summary.visits.slice(0, 100).forEach(function (v) {
       var b = el("button", "vb" + (v.id === picked ? " on" : "")); b.type = "button";
       var t = el("span", "t"); t.appendChild(el("span", "", v.id)); t.appendChild(el("span", "", v.site)); b.appendChild(t);
-      b.appendChild(el("span", "m", [v.device || "unknown device", v.referrer ? "from " + v.referrer : "direct", new Date(v.first).toLocaleString(), v.events.length + " events"].join(" - ")));
+      b.appendChild(el("span", "m", [v.device || "unknown device", v.country || "country unknown", v.referrer ? "from " + v.referrer : "direct", new Date(v.first).toLocaleString(), v.events.length + " events"].join(" - ")));
       b.addEventListener("click", function () { picked = v.id; render(); });
       vl.appendChild(b);
     });
